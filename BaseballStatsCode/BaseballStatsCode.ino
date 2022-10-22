@@ -118,17 +118,19 @@ void loop() {
     char ch = static_cast<char>(client.read());
     Serial.print(ch);
   }*/
-  char data[32] = {0};
-  client.readBytes(data, sizeof(data));
-  Serial.println(data);
-  writeScreen(data, data);
+  char data1[32] = {0};
+  char data2[32] = {0};
+  client.readBytesUntil('\n',data1, sizeof(data1));
+  client.readBytes(data2, sizeof(data2));
+  Serial.println(data1);
+  Serial.println(data2);
+  writeScreen(data1, data2);
 
   // Close the connection
   Serial.println();
   Serial.println("closing connection");
   client.stop();
 
-  //displayStats("a", "b", 1, 2);
   
   if (wait) {
     delay(30000); // execute once every 5 minutes, don't flood remote service
@@ -136,10 +138,3 @@ void loop() {
   wait = true;
   
 }
-/*
-void displayStats(char* team1, char* team2, int score1, int score2){
-  u8g2.clearBuffer();          // clear the internal memory
-  u8g2.setFont(u8g2_font_ncenB08_tr); // choose a suitable font
-  //u8g2.drawStr(0,10, "a");  // write something to the internal memory
-  u8g2.sendBuffer();
-}*/
