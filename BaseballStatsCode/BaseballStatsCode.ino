@@ -13,8 +13,8 @@
 char* ssid = STASSID;//gotwins/Messiah Wifi
 char* password = STAPSK;//ths6190501/acceptableC0ffee
 
-const char* host = "djxmmx.net";
-const uint16_t port = 17;
+const char* host = "20.102.87.150";//djxmmx.net
+const uint16_t port = 8080;//17
 
 void setup() {
   Serial.begin(115200);
@@ -62,7 +62,8 @@ void loop() {
   // This will send a string to the server
   Serial.println("sending data to server");
   if (client.connected()) {
-    client.println("hello from ESP8266");
+    client.println("Hello World");
+    //client.println(host);
   }
 
   // wait for data to be available
