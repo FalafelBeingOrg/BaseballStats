@@ -1,19 +1,24 @@
-/*#include <MUIU8g2.h>
+
+#include <ESP8266WiFi.h>
+
+
+#include <Arduino.h>
 #include <U8g2lib.h>
-#include <U8x8lib.h>
+
 #ifdef U8X8_HAVE_HW_SPI
 #include <SPI.h>
 #endif
 #ifdef U8X8_HAVE_HW_I2C
 #include <Wire.h>
 #endif
+
 #include <splash.h>
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 32 // OLED display height, in pixels
 
-U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C u8g2(U8G2_R0,  /*reset=/ 16,  /*clock=/ 5,  /*data=/ 4);
-*/
+U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C u8g2(U8G2_R0, /* reset=*/ 16, /* clock=*/ 5, /* data=*/ 4);
+
 /*
     This sketch establishes a TCP connection to a "quote of the day" service.
     It sends a "hello" message, and then prints received data.
@@ -32,8 +37,16 @@ char* password = STAPSK;//ths6190501/acceptableC0ffee
 const char* host = "20.102.87.150";//djxmmx.net
 const uint16_t port = 8080;//17
 
+void writeScreen(char* c, char* d){
+  u8g2.clearBuffer();          // clear the internal memory
+  u8g2.setFont(u8g2_font_ncenB08_tr); // choose a suitable font
+  u8g2.drawStr(0,10,c);
+  u8g2.drawStr(0,26,d);// write something to the internal memory
+  u8g2.sendBuffer();          // transfer internal memory to the display
+}
+
 void setup() {
-  //u8g2.begin();
+  u8g2.begin();
   Serial.begin(115200);
 
   // We start by connecting to a WiFi network
@@ -93,7 +106,7 @@ void loop() {
     if (millis() - timeout > 15000) {
       Serial.println(">>> Client Timeout !");
       client.stop();
-      delay(60000);
+      delay(30000);
       return;
     }
   }
@@ -108,6 +121,7 @@ void loop() {
   char data[32] = {0};
   client.readBytes(data, sizeof(data));
   Serial.println(data);
+  writeScreen(data, data);
 
   // Close the connection
   Serial.println();
