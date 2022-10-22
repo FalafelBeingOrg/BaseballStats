@@ -31,6 +31,10 @@ U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C u8g2(U8G2_R0, /* reset=*/ 16, /* clock=*/
 #define STAPSK  "notpassword"
 #endif
 
+int pin1 = 15;
+int pin2 = 13;
+int pin3 = 12;
+
 char* ssid = STASSID;//gotwins/Messiah Wifi
 char* password = STAPSK;//ths6190501/acceptableC0ffee
 
@@ -46,6 +50,10 @@ void writeScreen(char* c, char* d){
 }
 
 void setup() {
+  pinMode(pin1, OUTPUT);
+  pinMode(pin2, OUTPUT);
+  pinMode(pin3, OUTPUT);
+  
   u8g2.begin();
   Serial.begin(115200);
 
@@ -114,17 +122,41 @@ void loop() {
   // Read all the lines of the reply from server and print them to Serial
   Serial.println("receiving from remote server");
   // not testing 'client.connected()' since we do not need to send data here
-  /*while (client.available()) {
-    char ch = static_cast<char>(client.read());
-    Serial.print(ch);
-  }*/
+  
   char data1[32] = {0};
   char data2[32] = {0};
+  char base1[32] = {0};
+  char base2[32] = {0};
+  char base3[32] = {0};
   client.readBytesUntil('\n',data1, sizeof(data1));
-  client.readBytes(data2, sizeof(data2));
+  client.readBytesUntil('\n',data2, sizeof(data2));
+  client.readBytesUntil('\n',base1, sizeof(base1));
+  client.readBytesUntil('\n',base2, sizeof(base2));
+  client.readBytesUntil('\n',base3, sizeof(base3));
+  int baseint1 = (int)base1;
+  int baseint2 = (int)base2;
+  int baseint3 = (int)base3;
   Serial.println(data1);
   Serial.println(data2);
+  Serial.println(baseint1);
+  Serial.println(baseint2);
+  Serial.println(baseint3);
   writeScreen(data1, data2);
+  if (baseint1 == 1){
+    digitalWrite(pin1, HIGH);
+  } else {
+    digitalWrite(pin1, LOW);
+  }
+  if (baseint2 == 1){
+    digitalWrite(pin2, HIGH);
+  } else {
+    digitalWrite(pin2, LOW);
+  }
+  if (baseint3 == 1){
+    digitalWrite(pin3, HIGH);
+  } else {
+    digitalWrite(pin3, LOW);
+  }
 
   // Close the connection
   Serial.println();
