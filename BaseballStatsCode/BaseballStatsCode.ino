@@ -27,8 +27,8 @@ U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C u8g2(U8G2_R0, /* reset=*/ 16, /* clock=*/
 #include <ESP8266WiFi.h>
 
 #ifndef STASSID
-#define STASSID "gotwins";//gotwins/Messiah Wifi/NotMntx
-#define STAPSK  "ths6190501";//ths6190501/acceptableC0ffee/notpassword
+#define STASSID "falafel";//gotwins/Messiah Wifi/NotMntx
+#define STAPSK  "being";//ths6190501/acceptableC0ffee/notpassword
 #endif
 
 char* ssid = STASSID;//gotwins/Messiah Wifi
