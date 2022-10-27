@@ -74,69 +74,94 @@ void setup() {
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
 }
+void makeHTTPRequest() {
+  if (client.connected()){
+    client.stop();
+  }
+  if (!client.connect(TEST_HOST, 443))
+  {
+    Serial.println(F("Connection failed"));
+    Serial.print("Connecting Wifi: ");
+    Serial.println(ssid);
+    WiFi.begin(ssid, password);
+    while (WiFi.status() != WL_CONNECTED) {
+      Serial.print(".");
+      delay(500);
+    }
+    Serial.println("");
+    Serial.println("WiFi connected");
+    Serial.println("IP address: ");
+    IPAddress ip = WiFi.localIP();
+    Serial.println(ip);
 
-void loop() {
-  static bool wait = false;
 
-  Serial.print("connecting to ");
-  Serial.print(host);
-  Serial.print(':');
-  Serial.println(port);
-
-  // Use WiFiClient class to create TCP connections
-  WiFiClient client;
-  if (!client.connect(host, port)) {
-    Serial.println("connection failed");
-    delay(5000);
+    client.setInsecure();
     return;
   }
 
-  // This will send a string to the server
-  Serial.println("sending data to server");
-  if (client.connected()) {
-    client.println("GET / HTTP/1.1");
-    client.println("Host: 20.102.87.150:8080");
-    client.println("User-Agent: curl/7.83.1");
-    client.println("Accept: */*");
-    client.println("");
-    //client.println(host);
+  yield();
+
+  // Send HTTP request
+  client.print(F("GET "));
+  // This is the second half of a request (everything that comes after the base URL)
+  client.print("/");
+  client.println(F(" HTTP/1.1"));
+
+  //Headers
+  client.print(F("Host: "));
+  client.println(TEST_HOST);
+
+  client.println(F("Cache-Control: no-cache"));
+
+  if (client.println() == 0)
+  {
+    Serial.println(F("Failed to send request"));
+    return;
+  }
+  //delay(200);
+  // Check HTTP status
+  char status[32] = {0};
+  client.readBytesUntil('\r', status, sizeof(status));
+  if (strcmp(status, "HTTP/1.1 200 OK") != 0)
+  {
+    Serial.print(F("Unexpected response: "));
+    Serial.println(status);
+    return;
   }
 
-  // wait for data to be available
-  unsigned long timeout = millis();
-  while (client.available() == 0) {
-    if (millis() - timeout > 15000) {
-      Serial.println(">>> Client Timeout !");
-      client.stop();
-      delay(30000);
-      return;
-    }
+  // Skip HTTP headers
+  char endOfHeaders[] = "\r\n\r\n";
+  if (!client.find(endOfHeaders))
+  {
+    Serial.println(F("Invalid response"));
+    return;
   }
 
-  // Read all the lines of the reply from server and print them to Serial
-  Serial.println("receiving from remote server");
-  // not testing 'client.connected()' since we do not need to send data here
-  /*while (client.available()) {
-    char ch = static_cast<char>(client.read());
-    Serial.print(ch);
-  }*/
-  char data1[32] = {0};
-  char data2[32] = {0};
-  client.readBytesUntil('\n',data1, sizeof(data1));
-  client.readBytes(data2, sizeof(data2));
-  Serial.println(data1);
-  Serial.println(data2);
-  writeScreen(data1, data2);
+  char treeData[32] = {0};
 
-  // Close the connection
-  Serial.println();
-  Serial.println("closing connection");
-  client.stop();
+  // The count for the Tree is a property of the Div that eventually displays the count.
+  // the innerHTML of the div starts as 0
 
-  
-  if (wait) {
-    delay(30000); // execute once every 5 minutes, don't flood remote service
+  // Skip to the text that comes after "data-count=\""
+  char treeString[] = "data-count=\"";
+  if (!client.find(treeString))
+  {
+    Serial.println(F("Found no trees"));
+    writeScreen("Found no trees");
+    return;
+  } else {
+    // copy the data from the stream til the next "
+    // thats out tree data
+    client.readBytesUntil('\"', treeData, sizeof(treeData));
+    Serial.print("#TeamTrees: ");
+    Serial.println(treeData);
+    writeScreen("#TeamTrees:", treeData);
   }
-  wait = true;
-  
+}
+void loop() {
+  unsigned long now = millis();
+  if(requestDue < now){
+    makeHTTPRequest();
+    requestDue = now + delayBetweenRequests;
+  }
 }
