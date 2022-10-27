@@ -42,7 +42,8 @@ char* password = STAPSK;//ths6190501/acceptableC0ffee
 WiFiClientSecure client;
 
 
-#define TEST_HOST "teamtrees.org"//djxmmx.net/20.102.87.150
+#define TEST_HOST "finance.yahoo.com"//djxmmx.net/20.102.87.150
+#define GET_TARGET "/cryptocurrencies/"
 //const uint16_t port = 8080;//17
 unsigned long requestDue = 0;
 int delayBetweenRequests = 10 * 1000;
@@ -112,7 +113,7 @@ void makeHTTPRequest() {
   // Send HTTP request
   client.print(F("GET "));
   // This is the second half of a request (everything that comes after the base URL)
-  client.print("/");
+  client.print(GET_TARGET);
   client.println(F(" HTTP/1.1"));
 
   //Headers
@@ -145,25 +146,27 @@ void makeHTTPRequest() {
     return;
   }
 
-  char treeData[32] = {0};
+  char ethData[32] = {0};
 
   // The count for the Tree is a property of the Div that eventually displays the count.
   // the innerHTML of the div starts as 0
 
   // Skip to the text that comes after "data-count=\""
-  char treeString[] = "data-count=\"";
-  if (!client.find(treeString))
+  char firstString[] = "symbol=\"ETH-USD\"";
+  char secondString[] = "value=\"";
+  client.find(firstString);
+  if (!client.find(secondString))
   {
-    Serial.println(F("Found no trees"));
-    writeScreen("Found no trees", "");
+    Serial.println(F("Found no data"));
+    writeScreen("Found no data", "");
     return;
   } else {
     // copy the data from the stream til the next "
     // thats out tree data
-    client.readBytesUntil('\"', treeData, sizeof(treeData));
-    Serial.print("#TeamTrees: ");
-    Serial.println(treeData);
-    writeScreen("#TeamTrees:", treeData);
+    client.readBytesUntil('\"', ethData, sizeof(ethData));
+    Serial.print("ETH: ");
+    Serial.println(ethData);
+    writeScreen("ETH:", ethData);
   }
 }
 void loop() {
