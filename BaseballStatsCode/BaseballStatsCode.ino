@@ -27,8 +27,8 @@ U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C u8g2(U8G2_R0, /* reset=*/ 16, /* clock=*/
 #include <ESP8266WiFi.h>
 
 #ifndef STASSID
-#define STASSID "falafel";//gotwins/Messiah Wifi/NotMntx
-#define STAPSK  "being";//ths6190501/acceptableC0ffee/notpassword
+#define STASSID "Messiah Wifi";//gotwins/Messiah Wifi/NotMntx/GUEST
+#define STAPSK  "acceptableC0ffee";//ths6190501/acceptableC0ffee/notpassword/falafelBeing
 #endif
 
 char* ssid = STASSID;//gotwins/Messiah Wifi
@@ -42,8 +42,8 @@ char* password = STAPSK;//ths6190501/acceptableC0ffee
 WiFiClientSecure client;
 
 
-#define TEST_HOST "finance.yahoo.com"//djxmmx.net/20.102.87.150
-#define GET_TARGET "/cryptocurrencies/"
+#define TEST_HOST "teamtrees.org"//djxmmx.net/20.102.87.150/finance.yahoo.com
+#define GET_TARGET "/"//cryptocurrencies/
 //const uint16_t port = 8080;//17
 unsigned long requestDue = 0;
 int delayBetweenRequests = 10 * 1000;
@@ -71,6 +71,7 @@ void setup() {
      would try to act as both a client and an access-point and could cause
      network-issues with your other WiFi-devices on your WiFi-network. */
   WiFi.mode(WIFI_STA);
+  //WiFi.begin(ssid);
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
@@ -153,8 +154,8 @@ void makeHTTPRequest() {
 
   // Skip to the text that comes after "data-count=\""
   char firstString[] = "symbol=\"ETH-USD\"";
-  char secondString[] = "value=\"";
-  client.find(firstString);
+  char secondString[] = "data-count=\"";
+  //client.find(firstString);
   if (!client.find(secondString))
   {
     Serial.println(F("Found no data"));
@@ -164,9 +165,9 @@ void makeHTTPRequest() {
     // copy the data from the stream til the next "
     // thats out tree data
     client.readBytesUntil('\"', ethData, sizeof(ethData));
-    Serial.print("ETH: ");
+    Serial.print("#TeamTrees: ");
     Serial.println(ethData);
-    writeScreen("ETH:", ethData);
+    writeScreen("#TeamTrees:", ethData);
   }
 }
 void loop() {
